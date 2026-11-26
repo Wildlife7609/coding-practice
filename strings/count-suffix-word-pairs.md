@@ -54,6 +54,56 @@ public:
 - **时间复杂度**为 $O(n\log n + nL^2)$，按哈希表的平均查找成本计算。每个单词取 $L$ 次以内的后缀，构造和哈希一个后缀最多处理 $L$ 个字符。
 - **额外空间复杂度**为 $O(nL)$，主要用来保存不同单词的键。代码会就地排序输入数组。
 
+## 方法三 · 按长度分桶 + 哈希表
+
+这里的桶就是存放同一长度单词的 `vector`。题目规定词长为 1 到 10，开一个大小为 11 的数组，下标 0 留空。每个词只放进一个桶，桶的下标就是词长。
+
+例如，输入 `["cba", "a", "ba", "a"]` 时，各桶的内容如下。
+
+| 桶 | 单词 |
+| --- | --- |
+| `buckets[1]` | `"a"`、`"a"` |
+| `buckets[2]` | `"ba"` |
+| `buckets[3]` | `"cba"` |
+
+从 1 到 10 依次遍历各桶，就会按 `"a"`、`"a"`、`"ba"`、`"cba"` 的顺序处理。进入每个桶后，沿用方法二的计数逻辑。比如处理第二个 `"a"` 时，第一个 `"a"` 已经在 `seen` 里，这时答案加 1。
+
+### C++17 实现
+
+```cpp
+class Solution {
+public:
+    long long countSuffixPairs(vector<string>& words) {
+        constexpr size_t maxLength = 10;
+        vector<string> buckets[maxLength + 1];
+
+        for (const string& word : words) {
+            buckets[word.size()].push_back(word);
+        }
+
+        unordered_map<string, int> seen;
+        long long ans = 0;
+
+        for (size_t len = 1; len <= maxLength; ++len) {
+            for (const string& word : buckets[len]) {
+                for (size_t start = 0; start < word.size(); ++start) {
+                    auto it = seen.find(word.substr(start));
+                    if (it != seen.end()) {
+                        ans += it->second;
+                    }
+                }
+                ++seen[word];
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+- **平均时间复杂度**为 $O(n)$。遍历桶时，外层固定走 10 次，所有桶的内层循环加起来只访问 $n$ 个单词。每个词最多枚举 10 个后缀，每个后缀的构造和哈希也最多处理 10 个字符。方法二的扫描部分同样是平均 $O(n)$，它的排序让总时间为 $O(n \log n)$。
+- **额外空间复杂度**为 $O(n)$，因为桶和哈希表保存的每个单词最多有 10 个字符。分桶会复制单词，输入数组保持原有顺序。
+
 ## 易错点
 
 - **从下标 0 开始枚举。** `word.substr(0)` 是整个单词，漏掉它就会少算相同单词之间的配对。
