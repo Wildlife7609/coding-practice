@@ -31,34 +31,21 @@
 ### C++17 实现
 
 ```cpp
-#include <algorithm>
-#include <cstddef>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
 class Solution {
 public:
-    long long countSuffixPairs(std::vector<std::string>& words) {
-        std::sort(words.begin(), words.end(),
-                  [](const std::string& a, const std::string& b) {
-                      return a.size() < b.size();
-                  });
-
-        std::unordered_map<std::string, int> seen;
+    long long countSuffixPairs(vector<string>& words) {
+        sort(words.begin(), words.end(), [](const string& a, const string& b) {
+           return a.size() < b.size(); 
+        });
+        unordered_map<string, int> seen;
         long long ans = 0;
-
-        for (const std::string& word : words) {
-            for (std::size_t start = 0; start < word.size(); ++start) {
-                std::string suffix = word.substr(start);
-                auto it = seen.find(suffix);
-                if (it != seen.end()) {
-                    ans += it->second;
-                }
+        for (auto& w : words) {
+            for (int i = 0; i < w.size(); i ++) {
+                string suf = w.substr(i);
+                if (seen.count(suf)) ans += seen[suf];
             }
-            ++seen[word];
+            seen[w]++;
         }
-
         return ans;
     }
 };
