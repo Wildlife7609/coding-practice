@@ -1,4 +1,4 @@
-# TikTok OA · 统计匹配比较模式的子数组
+# 统计匹配比较模式的子数组
 
 [FastPrep 题目](https://www.fastprep.io/problems/tiktok-count-subarrays-matching-comparison-pattern)
 
