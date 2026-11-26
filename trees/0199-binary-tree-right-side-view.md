@@ -41,13 +41,19 @@ public:
         }
     };
 
+    void deleteTree(Node* root) {
+        if (root == nullptr) return;
+        deleteTree(root->left);
+        deleteTree(root->right);
+        delete(root);
+    }
+
     vector<int> solution(const vector<optional<int>>& levelOrder) {
         if (levelOrder.empty() || !levelOrder[0].has_value()) return {};
         Node* root = new Node(*levelOrder[0]);
         int n = levelOrder.size();
         queue<Node*> q;
         q.push(root);
-        //建树过程
         for (int i = 1; i < n; i += 2) {
             Node* cur = q.front();
             q.pop();
@@ -60,7 +66,7 @@ public:
                 q.push(cur->right);
             }
         }
-        //BFS
+
         vector<Node*> curr = {root};
         vector<int> ans;
         while (curr.size()) {
@@ -72,6 +78,7 @@ public:
             }
             curr = nxt;
         }
+        deleteTree(root);
         return ans;
     }
 };
@@ -81,62 +88,7 @@ public:
 
 ## 内存管理
 
-上面的建树代码用 `new Node(...)` 创建根节点和孩子。`queue<Node*>` 和 `vector<Node*>` 只保存节点地址。函数返回时，这些容器会销毁，但 `new` 创建的节点仍占用内存，因此会发生内存泄漏。可以用下面任一方式管理节点。
-
-### 方法一：BFS 结束后用 `delete` 释放整棵树
-
-在 `Solution` 类里加入 `deleteTree`。按后序遍历先释放左右孩子，再释放当前节点。只写 `delete root` 会释放根节点，孩子需要分别释放。
-
-```cpp
-void deleteTree(Node* node) {
-    if (node == nullptr) return;
-
-    deleteTree(node->left);
-    deleteTree(node->right);
-    delete node;
-}
-```
-
-在 `solution()` 的 BFS 循环结束后、返回答案前调用：
-
-```cpp
-deleteTree(root);
-return ans;
-```
-
-`ans` 保存的是复制出来的整数，树释放后仍可正常返回。
-
-### 方法二：用 `vector<Node>` 自动管理节点
-
-在判空之后，用下面的代码替换从创建根节点到建树循环结束的部分。原来的 BFS 可以继续使用 `Node*` 遍历。
-
-```cpp
-vector<Node> nodes;
-nodes.reserve(levelOrder.size());
-nodes.emplace_back(*levelOrder[0]);
-Node* root = &nodes.back();
-
-queue<Node*> q;
-q.push(root);
-for (size_t i = 1; i < levelOrder.size(); i += 2) {
-    Node* cur = q.front();
-    q.pop();
-
-    if (levelOrder[i]) {
-        nodes.emplace_back(*levelOrder[i]);
-        cur->left = &nodes.back();
-        q.push(cur->left);
-    }
-    if (i + 1 < levelOrder.size() && levelOrder[i + 1]) {
-        nodes.emplace_back(*levelOrder[i + 1]);
-        cur->right = &nodes.back();
-        q.push(cur->right);
-    }
-}
-```
-
-`emplace_back` 在 `vector` 末尾直接构造一个 `Node`，`&nodes.back()` 取出它的地址。节点总数最多等于数组长度，所以先调用 `reserve(levelOrder.size())` 可以避免建树时扩容，让已保存的节点地址保持有效。函数退出时，`nodes` 会销毁所有节点，无需手动 `delete`。
-
+上面的建树代码用 `new Node(...)` 创建根节点和孩子。`queue<Node*>` 和 `vector<Node*>` 只保存节点地址。函数返回时，这些容器会销毁，但 `new` 创建的节点仍占用内存，因此会发生内存泄漏。树用完后，记得调用 deleteTree(root)，把每个节点都释放掉。
 
 | 输入 | 预期输出 |
 | --- | --- |
