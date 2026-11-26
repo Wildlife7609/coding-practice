@@ -12,7 +12,7 @@
 2. **先判断 `@` 前面的边界。** 用 `i == 0 || message[i - 1] == ' '`，这样开头的 `@` 不会访问下标 `-1`，`"appro@ch"` 中的 `@` 也不会开始一组提及。
 3. **注意 `substr` 的第二个参数是长度。** 取 `[i, j)` 要写 `substr(i, j - i)`。逗号处只能取到前面的 ID，所以循环结束后还要取一次。比如 `"@id1,id2"` 里的 `id2` 会在循环结束时取出。
 4. **两根下标足够，但要知道它们停在哪里。** 一组扫完时，`j` 位于分隔空格或字符串末尾。赋值 `i = j` 后，外层的 `++i` 只会跳过这个空格，`"@id1 @id2"` 中的第二个 `@` 仍会被检查。内层条件先写 `j < n`，再访问 `message[j]`。
-5. **用 `find` 判断是不是成员。** 对未知 ID 直接写 `++counts[id]` 会插入新键。排序时先比较次数，再用字符串比较 ID，因此同分时 `id10` 排在 `id2` 前面。排完序再拼接 `=次数`。
+5. **用 `count` 判断是不是成员。** 对未知 ID 直接写 `++counts[id]` 会插入新键。排序时先比较次数，再用字符串比较 ID，因此同分时 `id10` 排在 `id2` 前面。排完序再拼接 `=次数`。
 6. **编译和本地调试。** `vector<sting>` 应该写成 `vector<string>`，`to_string(counts[id])` 要闭合右括号。自测时把 `int main()` 写在类的 `};` 后，用 `Solution{}.mentionCounts(members, messages)` 调用。普通的 `cin >> members` 不能整组读取 `vector<string>`，固定样例可以直接用初始化列表。原题平台提供入口时只提交 `Solution`。
 
 ## C++17
@@ -55,17 +55,14 @@ public:
             }
 
             for (const auto& id : mentioned) {
-                auto member = counts.find(id);
-                if (member != counts.end()) {
-                    ++member->second;
-                }
+                if (count.count(id)) count[id]++;
             }
         }
 
         vector<string> answer = members;
         sort(answer.begin(), answer.end(), [&](const string& a, const string& b) {
-            if (counts.at(a) != counts.at(b)) {
-                return counts.at(a) > counts.at(b);
+            if (counts.count(a) != counts.count(b)) {
+                return counts.count(a) > counts.count(b);
             }
             return a < b;
         });
