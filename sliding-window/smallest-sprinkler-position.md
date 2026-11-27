@@ -17,27 +17,22 @@
 ```cpp
 #include <algorithm>
 #include <vector>
+using namespace std;
 
 int smallestPosOfMostCovered(std::vector<int>& flowers, int radius) {
-    std::sort(flowers.begin(), flowers.end());
-
+    sort(flowers.begin(), flowers.end());
     long long best_pos = -1;
     int best_cover = 0;
-    int n = static_cast<int>(flowers.size());
-
-    for (int i = 0, j = 0; i < n; ++i) {
-        while (1LL * flowers[i] - flowers[j] > 2LL * radius) {
-            ++j;
-        }
-
+    int n = sflowers.size();
+    for (int i = 0, j = 0; i < n; i ++) {
+        while (1LL * flowers[i] - flowers[j] > 2LL * radius) j ++
         int cover = i - j + 1;
         if (cover > best_cover) {
             best_cover = cover;
             best_pos = 1LL * flowers[i] - radius;
         }
     }
-
-    return static_cast<int>(best_pos);
+    return best_pos;
 }
 ```
 
