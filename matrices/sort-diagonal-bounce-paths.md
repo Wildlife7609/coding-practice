@@ -8,56 +8,44 @@
 
 ## 模拟
 
-列号始终递增，所以用 `for` 遍历列，只需要额外维护当前行 `row` 和垂直方向 `dr`。每一列先累加当前格子的值。有下一列时，先检查 `row + dr` 是否越界，再更新行号。每个新起点都重新初始化方向。
+列号始终递增，所以用 `for` 遍历列，只需要额外维护当前行 `row` 和垂直方向 `dr`。每一列先累加当前格子的值。先检查 `row + dr` 是否越界，再更新行号。每个新起点都重新初始化方向。
 
 例如 3 行 4 列，从 `(0, 0)` 出发，路径为 `(0, 0) → (1, 1) → (2, 2) → (1, 3)`。第一步在上边界反弹，第三步在下边界反弹。如果只有 3 列，到达 `(2, 2)` 就结束了。
 
 ## C++17 实现
 
 ```cpp
-#include <algorithm>
-#include <utility>
-#include <vector>
+#include<bits/stdc++.h>
+using namespace std;
 
-std::vector<int> solution(const std::vector<std::vector<int>>& matrix) {
+std::vector<int> solution(vector<vector<int>>& matrix) {
     if (matrix.empty() || matrix[0].empty()) {
         return {};
     }
-
-    const int rows = static_cast<int>(matrix.size());
-    const int cols = static_cast<int>(matrix[0].size());
-    std::vector<std::pair<long long, int>> paths;
-    paths.reserve(rows);
-
-    for (int startRow = 0; startRow < rows; ++startRow) {
-        int row = startRow;
-        int dr = (rows == 1) ? 0 : -1;
+    int n = matrix.size(), m = matrix[0].size();
+    vector<pair<long long, int>> paths;
+    paths.reserve(n);
+    for (int i = 0; i < n; i ++) {
+        int dr = (n == 1) ? 0 : -1;
+        int r = i;
         long long weight = 0;
-
-        for (int col = 0; col < cols; ++col) {
-            weight += matrix[row][col];
-            if (col == cols - 1) {
-                break;
-            }
-
-            if (row + dr < 0 || row + dr >= rows) {
+        for (int j = 0; j < m; j ++) {
+            weight += matrix[r][j];
+            if (r + dr < 0 || r + dr == n) {
                 dr = -dr;
             }
-            row += dr;
+            r += dr;
         }
-
-        paths.emplace_back(weight, matrix[startRow][0]);
+        paths.push_back({weight, matrix[i][0]});
     }
-
     // pair 先比较权重，权重相同再比较起点值。
     std::sort(paths.begin(), paths.end());
 
-    std::vector<int> answer;
-    answer.reserve(rows);
-    for (const auto& path : paths) {
-        answer.push_back(path.second);
+    vector<int> ans;
+    for (const auto& p : paths) {
+        ans.push_back(p.second);
     }
-    return answer;
+    return ans;
 }
 ```
 
