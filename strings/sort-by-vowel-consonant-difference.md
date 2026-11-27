@@ -61,6 +61,6 @@ std::string sortWords(const std::string& input) {
 - **计数和下标**。题目要的是两个数量的差。只有在 `[i, j)` 全部是字母时，才有 `consonantCount = j - i - vowelCount`，差值也可写成 `abs(2 * vowelCount - (j - i))`。
 - **标点和分词**。用 `while (isalpha(...))` 扫描会把标点当分隔符。按空白分词时，标点留在输出中。例如 `don't` 的得分为 `abs(1 - 3) = 2`。
 - **空输入**。拼接完成后，只有 answer 非空时才调用 pop_back()，删除末尾空格。
-- **返回类型**。这里沿用 `sortWords` 的字符串返回值，单词间用一个空格连接。如果平台要求 `vector<string>`，就依次收集排序后的 `entry.second`。
+- **返回类型**。这里沿用 `sortWords` 的字符串返回值，单词间用一个空格连接。如果平台要求 `vector<string>`，就按排序后的顺序把每个 pair 的第二项放入结果数组。
 
 设输入长度为 `N`，单词数为 `W`，最长单词长度为 `L`。读入、计数和拼接耗时 `O(N)`，排序最多进行 `O(W log W)` 次比较，字典序比较最坏耗时 `O(L)`。总时间复杂度为 `O(N + W log W * L)`，额外空间复杂度为 `O(N)`。
